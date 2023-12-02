@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no,
+          initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible"
+          content="ie=edge">
+    <title>로또 랜덤 번호 생성기</title>
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body>
+<h1>로또 랜덤 번호 생성기</h1>
+<p>생성된 번호는 <strong>중복이 없는</strong> 번호입니다.</p>
+<p>생성된 번호는 <strong>오름차순</strong>으로 정렬되어 있습니다.</p>
+<p>생성된 번호는 <strong>1 ~ 45</strong> 사이의 번호입니다.</p>
+<p>생성된 번호는 <strong>6개</strong>입니다.</p>
+<p>생성된 번호는 <strong>새로고침</strong>을 하면 <strong>다시 생성</strong>됩니다.</p>
+<button class="write" onclick="lottoWrite()">로또 번호 생성하기</button>
+<button class="reload" onclick="lottoWrite()" style="display: none;">로또 번호 재생성</button>
+<table style="display: none;">
+    <tbody>
+    <tr class="1rd">
+        <th>번호</th>
+        <td>1번째</td>
+        <td>2번째</td>
+        <td>3번째</td>
+        <td>4번째</td>
+        <td>5번째</td>
+        <td>6번째</td>
+    </tr>
+    </tbody>
+    <tbody>
+    <tr class="2rd">
+        <th>번호</th>
+        <td>1번째</td>
+        <td>2번째</td>
+        <td>3번째</td>
+        <td>4번째</td>
+        <td>5번째</td>
+        <td>6번째</td>
+    </tr>
+    </tbody>
+    <tbody>
+    <tr class="3rd">
+        <th>번호</th>
+        <td>1번째</td>
+        <td>2번째</td>
+        <td>3번째</td>
+        <td>4번째</td>
+        <td>5번째</td>
+        <td>6번째</td>
+    </tr>
+    </tbody>
+    <tbody>
+    <tr class="4rd">
+        <th>번호</th>
+        <td>1번째</td>
+        <td>2번째</td>
+        <td>3번째</td>
+        <td>4번째</td>
+        <td>5번째</td>
+        <td>6번째</td>
+    </tr>
+    </tbody>
+    <tbody>
+    <tr class="5rd">
+        <th>번호</th>
+        <td>1번째</td>
+        <td>2번째</td>
+        <td>3번째</td>
+        <td>4번째</td>
+        <td>5번째</td>
+        <td>6번째</td>
+    </tr>
+    </tbody>
+</table>
+</body>
+<script>
+    var table = document.querySelector('table');
+    var one = document.getElementsByClassName('1rd');
+    var two = document.getElementsByClassName('2rd');
+    var three = document.getElementsByClassName('3rd');
+    var four = document.getElementsByClassName('4rd');
+    var five = document.getElementsByClassName('5rd');
+
+    function lottoWrite() {
+        lottoRandom(one);
+        lottoRandom(two);
+        lottoRandom(three);
+        lottoRandom(four);
+        lottoRandom(five);
+
+        $(table).show();
+        $('.write').hide();
+        $('.reload').show();
+    }
+
+    function lottoRandom(num) {
+        let numbers = [];
+        for (let i = 1; i <= 6; i++) {
+            let lottoNumber = Math.floor(Math.random() * 45) + 1;
+            for (let j in numbers) {
+                while (lottoNumber === numbers[j]) {
+                    lottoNumber = Math.floor(Math.random() * 45) + 1;
+                }
+            }
+            numbers.push(lottoNumber);
+        }
+
+        numbers.sort(function (a, b) {
+            return a - b;
+        });
+
+        for (let i = 0; i < numbers.length; i++) {
+            num[0].children[i + 1].innerHTML = numbers[i];
+        }
+    }
+</script>
+</html>
