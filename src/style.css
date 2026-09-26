@@ -1,0 +1,32 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root { font-family: Inter, "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif; font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+html { scroll-behavior: smooth; }
+body { min-width: 280px; margin: 0; background: #f5f7f4; }
+html.dark body { background: #0f172a; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .46; }
+button:focus-visible, a:focus-visible { outline: 3px solid #10b981; outline-offset: 3px; }
+
+@layer components {
+  .icon-button { @apply relative grid size-11 shrink-0 place-items-center rounded-2xl text-slate-600 transition hover:bg-slate-100 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-emerald-300; }
+  .small-icon-button { @apply grid size-10 place-items-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-emerald-300; }
+  .count-dot { @apply absolute -right-1 -top-1 grid min-h-5 min-w-5 place-items-center rounded-full bg-emerald-600 px-1 text-[10px] font-extrabold text-white; }
+  .secondary-button { @apply inline-flex min-h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-700 transition hover:border-emerald-300 hover:bg-emerald-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-emerald-600 dark:hover:bg-slate-700; }
+  .primary-button { @apply inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-white px-5 text-base font-extrabold text-emerald-800 shadow-lg shadow-emerald-950/15 transition hover:-translate-y-0.5 hover:bg-emerald-50 active:translate-y-0; }
+  .count-button { @apply min-h-11 rounded-xl border border-white/20 bg-white/10 px-2 text-sm font-bold text-white transition hover:bg-white/20; }
+  .count-button-active { @apply border-white bg-white text-emerald-800 shadow-sm hover:bg-white; }
+  .selector-mode { @apply inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-2 text-xs font-bold text-slate-600 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-700; }
+  .selector-mode-active { @apply border-emerald-500 bg-emerald-50 text-emerald-800 ring-1 ring-emerald-500 dark:border-emerald-400 dark:bg-emerald-900/30 dark:text-emerald-200 dark:ring-emerald-400; }
+  .number-choice { @apply relative grid min-h-10 place-items-center rounded-xl border border-slate-200 bg-white text-xs font-bold tabular-nums text-slate-700 transition hover:border-emerald-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200; }
+  .number-choice-fixed { @apply border-emerald-600 bg-emerald-50 text-emerald-900 ring-1 ring-emerald-600 dark:border-emerald-400 dark:bg-emerald-900/40 dark:text-emerald-100 dark:ring-emerald-400; }
+  .number-choice-excluded { @apply border-rose-500 bg-rose-50 text-rose-900 ring-1 ring-rose-500 dark:border-rose-400 dark:bg-rose-900/30 dark:text-rose-100 dark:ring-rose-400; }
+  .lotto-ball { display: inline-grid; width: clamp(38px, 10.6vw, 54px); height: clamp(38px, 10.6vw, 54px); flex: 0 0 auto; place-items: center; border-radius: 50%; font-size: clamp(13px, 3.8vw, 19px); font-weight: 900; font-variant-numeric: tabular-nums; box-shadow: 0 5px 14px rgba(15,23,42,.13), inset 0 1px 1px rgba(255,255,255,.25); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .lotto-ball { animation: ball-appear .28s both; }
+  @keyframes ball-appear { from { opacity: .25; transform: translateY(5px) scale(.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
