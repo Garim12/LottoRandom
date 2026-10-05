@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "data:update": "node scripts/update-lotto-data.mjs",
     "typecheck": "vue-tsc -b"
   },
   "dependencies": {

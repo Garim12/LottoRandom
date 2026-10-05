@@ -6,6 +6,19 @@ export interface LottoSelection {
   excluded: number[]
 }
 
+export interface LottoFilters {
+  sumMin: number
+  sumMax: number
+  oddCount: number | null
+  maxConsecutive: number
+  minRanges: number
+}
+
+export interface LottoRules {
+  weights?: readonly number[]
+  quotas?: { numbers: number[]; count: number }[]
+}
+
 export interface PensionTicket {
   group: number
   number: string
