@@ -20,6 +20,7 @@ export type StoredLottery =
   | { id: string; type: 'lotto'; createdAt: string; numbers: number[] }
   | { id: string; type: 'pension'; createdAt: string; mode: 'single'; ticket: PensionTicket }
   | { id: string; type: 'pension'; createdAt: string; mode: 'set'; number: string }
+  | { id: string; type: 'pension'; createdAt: string; mode: 'spread'; tickets: PensionTicket[] }
 
 export interface LotteryStore {
   version: 1

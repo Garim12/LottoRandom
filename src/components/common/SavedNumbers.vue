@@ -20,9 +20,11 @@ watch(() => props.kind, async () => { await nextTick(); closeButton.value?.focus
 function textFor(item: StoredLottery): string {
   if (item.type === 'lotto') return formatLotto(item.numbers)
   if (item.mode === 'single') return formatPension(item.ticket)
+  if (item.mode === 'spread') return item.tickets.map(formatPension).join('\n')
   return Array.from({ length: 5 }, (_, index) => `${index + 1}조 ${item.number}`).join('\n')
 }
 function labelFor(item: StoredLottery): string {
+  if (item.type === 'pension' && item.mode === 'spread') return '연금복권 분산 5장'
   return item.type === 'lotto' ? '로또 6/45' : item.mode === 'single' ? '연금복권 낱장' : '연금복권 5개조 세트'
 }
 function dateFor(item: StoredLottery): string {

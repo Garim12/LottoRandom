@@ -6,6 +6,13 @@ import type { LotteryStore, PensionTicket, StoredLottery } from '../types/lotter
 const KEY = 'lotto-random:v1'
 const empty = (): LotteryStore => ({ version: 1, favorites: [], history: [] })
 
+function validTicket(value: unknown): value is PensionTicket {
+  if (!value || typeof value !== 'object') return false
+  const ticket = value as Record<string, unknown>
+  return Number.isInteger(ticket.group) && Number(ticket.group) >= 1 && Number(ticket.group) <= 5 &&
+    typeof ticket.number === 'string' && /^\d{6}$/.test(ticket.number)
+}
+
 function validEntry(value: unknown): value is StoredLottery {
   if (!value || typeof value !== 'object') return false
   const item = value as Record<string, unknown>
@@ -18,10 +25,10 @@ function validEntry(value: unknown): value is StoredLottery {
   }
   if (item.type === 'pension') {
     if (item.mode === 'set') return typeof item.number === 'string' && /^\d{6}$/.test(item.number)
-    if (item.mode === 'single' && item.ticket && typeof item.ticket === 'object') {
-      const ticket = item.ticket as Record<string, unknown>
-      return Number.isInteger(ticket.group) && Number(ticket.group) >= 1 && Number(ticket.group) <= 5 &&
-        typeof ticket.number === 'string' && /^\d{6}$/.test(ticket.number)
+    if (item.mode === 'single') return validTicket(item.ticket)
+    if (item.mode === 'spread') {
+      return Array.isArray(item.tickets) && item.tickets.length === 5 && item.tickets.every(validTicket) &&
+        new Set(item.tickets.map((ticket) => ticket.number.slice(-1))).size === 5
     }
   }
   return false
@@ -48,9 +55,14 @@ export const createPensionEntry = (ticket: PensionTicket): StoredLottery => ({
 export const createPensionSetEntry = (number: string): StoredLottery => ({
   id: randomId(), type: 'pension', mode: 'set', createdAt: new Date().toISOString(), number,
 })
+export const createPensionSpreadEntry = (tickets: PensionTicket[]): StoredLottery => ({
+  id: randomId(), type: 'pension', mode: 'spread', createdAt: new Date().toISOString(),
+  tickets: tickets.map((ticket) => ({ ...ticket })),
+})
 
 function signature(item: StoredLottery): string {
   if (item.type === 'lotto') return `lotto:${item.numbers.join('-')}`
+  if (item.mode === 'spread') return `spread:${item.tickets.map((ticket) => `${ticket.group}:${ticket.number}`).sort().join('|')}`
   return item.mode === 'set' ? `set:${item.number}` : `single:${item.ticket.group}:${item.ticket.number}`
 }
 

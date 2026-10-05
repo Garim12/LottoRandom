@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest'
-import { formatPension, generatePensionDigits, generatePensionNumber, generatePensionSet, regenerateGroup } from './pension'
+import { describe, expect, it, vi } from 'vitest'
+import { formatPension, generatePensionDigits, generatePensionNumber, generatePensionSet, generatePensionSpread, regenerateGroup } from './pension'
+import * as random from './random'
 
 describe('pension 720+', () => {
   it('keeps a six-character number and valid group across 1000 draws', () => {
@@ -25,5 +26,17 @@ describe('pension 720+', () => {
     const next = regenerateGroup(original)
     expect(next.group).not.toBe(3)
     expect(next.number).toBe(original.number)
+  })
+  it('creates five valid tickets with distinct last digits, including leading zeroes', () => {
+    for (let i = 0; i < 100; i += 1) {
+      const tickets = generatePensionSpread()
+      expect(tickets).toHaveLength(5)
+      expect(new Set(tickets.map((ticket) => ticket.number.slice(-1))).size).toBe(5)
+      expect(tickets.every((ticket) => /^[1-5]조 \d{6}$/.test(formatPension(ticket)))).toBe(true)
+    }
+    const integer = vi.spyOn(random, 'randomInt').mockImplementation((min) => min)
+    try {
+      expect(generatePensionSpread().every((ticket) => /^00000\d$/.test(ticket.number))).toBe(true)
+    } finally { integer.mockRestore() }
   })
 })

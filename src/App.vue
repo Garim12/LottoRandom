@@ -8,7 +8,7 @@ import SavedNumbers from './components/common/SavedNumbers.vue'
 import ToastContainer from './components/common/ToastContainer.vue'
 import LottoGenerator from './components/lotto/LottoGenerator.vue'
 import PensionGenerator from './components/pension/PensionGenerator.vue'
-import { useLotteryStorage, createLottoEntry, createPensionEntry, createPensionSetEntry } from './composables/useLotteryStorage'
+import { useLotteryStorage, createLottoEntry, createPensionEntry, createPensionSetEntry, createPensionSpreadEntry } from './composables/useLotteryStorage'
 import { useTheme } from './composables/useTheme'
 import { useToast } from './composables/useToast'
 import { copyText } from './utils/clipboard'
@@ -69,7 +69,7 @@ function clearConfirmed() {
         <LottoGenerator :restore="lottoRestore" @copy="copy" @save="(numbers: number[]) => save(createLottoEntry(numbers))" @remember="(numbers: number[]) => storage.remember(createLottoEntry(numbers))" @notify="(message: string, tone: 'error' | 'info') => toast.show(message, tone)" />
       </section>
       <section v-else id="pension-panel" role="tabpanel" aria-label="연금복권 720+ 생성기">
-        <PensionGenerator :restore="pensionRestore" @copy="copy" @save-single="(ticket: PensionTicket) => save(createPensionEntry(ticket))" @save-set="(number: string) => save(createPensionSetEntry(number))" @remember-single="(ticket: PensionTicket) => storage.remember(createPensionEntry(ticket))" @remember-set="(number: string) => storage.remember(createPensionSetEntry(number))" @notify="(message: string) => toast.show(message, 'error')" />
+        <PensionGenerator :restore="pensionRestore" @copy="copy" @save-single="(ticket: PensionTicket) => save(createPensionEntry(ticket))" @save-set="(number: string) => save(createPensionSetEntry(number))" @save-spread="(tickets: PensionTicket[]) => save(createPensionSpreadEntry(tickets))" @remember-single="(ticket: PensionTicket) => storage.remember(createPensionEntry(ticket))" @remember-set="(number: string) => storage.remember(createPensionSetEntry(number))" @remember-spread="(tickets: PensionTicket[]) => storage.remember(createPensionSpreadEntry(tickets))" @notify="(message: string) => toast.show(message, 'error')" />
       </section>
       <section class="mt-9 grid gap-3 sm:grid-cols-2" aria-label="내 번호 보관함">
         <button type="button" class="group flex items-center justify-between rounded-[22px] border border-slate-200 bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:bg-slate-800" @click="drawer = 'favorites'"><span class="flex items-center gap-3"><span class="grid size-11 place-items-center rounded-2xl bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-300"><Heart :size="20" aria-hidden="true" /></span><span><strong class="block text-sm font-extrabold text-slate-900 dark:text-white">저장한 번호</strong><small class="mt-0.5 block text-xs text-slate-500 dark:text-slate-400">마음에 드는 조합 {{ storage.favorites.value.length }}개</small></span></span><ArrowUpRight :size="18" class="text-slate-400 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true" /></button>

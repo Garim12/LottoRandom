@@ -1,4 +1,4 @@
-import { sample } from './random'
+import { sample, shuffle } from './random'
 import type { GameCount, LottoSelection } from '../types/lottery'
 
 const ALL_NUMBERS = Array.from({ length: 45 }, (_, index) => index + 1)
@@ -44,36 +44,56 @@ function combinations(n: number, k: number): number {
   return Math.round(total)
 }
 
-export function generateLottoGames(count: GameCount, selection: LottoSelection = { fixed: [], excluded: [] }): number[][] {
+function nextLottoGame(selection: LottoSelection, current: readonly number[][], spread: boolean): number[] {
+  const existing = new Set(current.map((game) => game.join('-')))
+  if (spread) {
+    const usage = new Map<number, number>()
+    for (const number of current.flat()) usage.set(number, (usage.get(number) ?? 0) + 1)
+    const pool = shuffle(candidates(selection)).sort((a, b) => (usage.get(a) ?? 0) - (usage.get(b) ?? 0))
+    // ponytail: greedy usage order, not a global optimum; use joint search if that becomes a requirement.
+    // Backtrack only past existing combinations so narrow pools still produce distinct games.
+    function pick(start: number, chosen: number[]): number[] | null {
+      const remaining = 6 - selection.fixed.length - chosen.length
+      if (remaining === 0) {
+        const numbers = [...selection.fixed, ...chosen].sort((a, b) => a - b)
+        return existing.has(numbers.join('-')) ? null : numbers
+      }
+      for (let i = start; i <= pool.length - remaining; i += 1) {
+        const result = pick(i + 1, [...chosen, pool[i]!])
+        if (result) return result
+      }
+      return null
+    }
+    const numbers = pick(0, [])
+    if (numbers) return numbers
+  } else {
+    for (let attempt = 0; attempt < 10_000; attempt += 1) {
+      const numbers = generateLottoNumbers(selection)
+      if (!existing.has(numbers.join('-'))) return numbers
+    }
+  }
+  throw new LotteryError('다른 조합을 만들 수 없습니다. 고정·제외 조건을 바꿔 주세요.')
+}
+
+export function generateLottoGames(count: GameCount, selection: LottoSelection = { fixed: [], excluded: [] }, spread = false): number[][] {
   if (![1, 3, 5].includes(count)) throw new LotteryError('게임 수는 1, 3, 5 중에서 선택해 주세요.')
   validateSelection(selection)
   const capacity = combinations(candidates(selection).length, 6 - selection.fixed.length)
   if (capacity < count) throw new LotteryError('현재 고정·제외 조건에서는 서로 다른 게임을 만들 수 없습니다.')
-  const unique = new Set<string>()
   const games: number[][] = []
-  let attempts = 0
-  while (games.length < count) {
-    if (++attempts > 10_000) throw new LotteryError('번호 생성에 실패했습니다. 조건을 줄여 다시 시도해 주세요.')
-    const numbers = generateLottoNumbers(selection)
-    const key = numbers.join('-')
-    if (unique.has(key)) continue
-    unique.add(key)
-    games.push(numbers)
-  }
+  while (games.length < count) games.push(nextLottoGame(selection, games, spread))
   return games
 }
 
-export function regenerateLottoGame(current: readonly number[][], index: number, selection: LottoSelection): number[] {
-  if (index < 0 || index >= current.length) throw new LotteryError('게임을 찾을 수 없습니다.')
+export function regenerateLottoGame(current: readonly number[][], index: number, selection: LottoSelection, spread = false): number[] {
+  if (!Number.isInteger(index) || index < 0 || index >= current.length) throw new LotteryError('게임을 찾을 수 없습니다.')
   validateSelection(selection)
-  const existing = new Set(current.filter((_, position) => position !== index).map((game) => game.join('-')))
+  const others = current.filter((_, position) => position !== index)
+  const existing = new Set(others.filter((game) => selection.fixed.every((number) => game.includes(number)) &&
+    !game.some((number) => selection.excluded.includes(number))).map((game) => game.join('-')))
   const capacity = combinations(candidates(selection).length, 6 - selection.fixed.length)
   if (capacity <= existing.size) throw new LotteryError('다른 조합을 만들 수 없습니다. 고정·제외 조건을 바꿔 주세요.')
-  for (let attempt = 0; attempt < 10_000; attempt += 1) {
-    const game = generateLottoNumbers(selection)
-    if (!existing.has(game.join('-'))) return game
-  }
-  throw new LotteryError('번호 생성에 실패했습니다. 다시 시도해 주세요.')
+  return nextLottoGame(selection, others, spread)
 }
 
 export const formatLotto = (numbers: readonly number[]) => numbers.map((number) => String(number).padStart(2, '0')).join(', ')

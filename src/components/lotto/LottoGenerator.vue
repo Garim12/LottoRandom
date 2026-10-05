@@ -14,6 +14,7 @@ const emit = defineEmits<{
   notify: [message: string, tone: 'error' | 'info']
 }>()
 const count = ref<GameCount>(5)
+const spread = ref(false)
 const selection = ref<LottoSelection>({ fixed: [], excluded: [] })
 const games = ref<number[][]>([])
 const selectorOpen = ref(false)
@@ -27,7 +28,7 @@ watch(() => props.restore, (numbers) => {
 
 function generate() {
   try {
-    games.value = generateLottoGames(count.value, selection.value)
+    games.value = generateLottoGames(count.value, selection.value, spread.value)
     games.value.forEach((numbers) => emit('remember', [...numbers]))
   } catch (error) {
     emit('notify', error instanceof Error ? error.message : '번호를 생성하지 못했습니다.', 'error')
@@ -35,7 +36,7 @@ function generate() {
 }
 function regenerate(index: number) {
   try {
-    const numbers = regenerateLottoGame(games.value, index, selection.value)
+    const numbers = regenerateLottoGame(games.value, index, selection.value, spread.value)
     games.value[index] = numbers
     emit('remember', [...numbers])
   } catch (error) {
@@ -56,7 +57,7 @@ function copyGame(index: number) {
       <div class="relative">
         <p class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-bold tracking-wide text-emerald-100">✦ 오늘의 번호</p>
         <h2 class="mt-5 max-w-lg text-3xl font-black leading-tight tracking-tight sm:text-4xl">나만의 행운 조합을<br />만들어 보세요.</h2>
-        <p class="mt-3 max-w-md text-sm leading-6 text-emerald-100/85">숫자를 고르거나, 아무 조건 없이 시작해도 좋아요. 모든 조합은 공정한 무작위 추첨으로 만들어집니다.</p>
+        <p class="mt-3 max-w-md text-sm leading-6 text-emerald-100/85">숫자를 고르거나, 아무 조건 없이 시작해도 좋아요. 무작위로 고르거나 여러 게임의 번호를 분산할 수 있어요.</p>
         <div class="mt-7 rounded-2xl bg-white/10 p-3.5 backdrop-blur-sm sm:p-5">
           <div class="flex items-center justify-between gap-2">
             <span class="text-xs font-bold text-emerald-100">몇 게임을 만들까요?</span>
@@ -65,6 +66,11 @@ function copyGame(index: number) {
           <div class="mt-3 grid grid-cols-3 gap-2" role="group" aria-label="생성할 게임 수">
             <button v-for="option in ([1, 3, 5] as const)" :key="option" type="button" class="count-button" :class="count === option ? 'count-button-active' : ''" :aria-pressed="count === option" @click="count = option">{{ option }}게임</button>
           </div>
+          <div class="mt-4 grid grid-cols-2 gap-2" role="group" aria-label="로또 생성 방식" aria-describedby="lotto-mode-help">
+            <button type="button" class="count-button" :class="!spread ? 'count-button-active' : ''" :aria-pressed="!spread" @click="spread = false">기본 무작위</button>
+            <button type="button" class="count-button" :class="spread ? 'count-button-active' : ''" :aria-pressed="spread" @click="spread = true">게임 간 분산</button>
+          </div>
+          <p id="lotto-mode-help" class="mt-3 text-xs leading-5 text-emerald-100" aria-live="polite">{{ spread ? '고정·제외 조건을 지키며 덜 사용한 번호부터 골라요. 1게임에는 분산 효과가 없고, 조건이 좁으면 번호가 겹칠 수 있어요.' : '조건에 맞는 조합을 무작위로 만들고, 완전히 같은 게임은 제외해요.' }} 당첨 확률을 높이는 기능은 아닙니다.</p>
           <button type="button" class="primary-button mt-4 w-full" @click="generate"><Dices :size="21" aria-hidden="true" /> 번호 생성하기</button>
         </div>
       </div>
