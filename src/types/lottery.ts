@@ -6,6 +6,19 @@ export interface LottoSelection {
   excluded: number[]
 }
 
+export interface LottoFilters {
+  sumMin: number
+  sumMax: number
+  oddCount: number | null
+  maxConsecutive: number
+  minRanges: number
+}
+
+export interface LottoRules {
+  weights?: readonly number[]
+  quotas?: { numbers: number[]; count: number }[]
+}
+
 export interface PensionTicket {
   group: number
   number: string
@@ -20,6 +33,7 @@ export type StoredLottery =
   | { id: string; type: 'lotto'; createdAt: string; numbers: number[] }
   | { id: string; type: 'pension'; createdAt: string; mode: 'single'; ticket: PensionTicket }
   | { id: string; type: 'pension'; createdAt: string; mode: 'set'; number: string }
+  | { id: string; type: 'pension'; createdAt: string; mode: 'spread'; tickets: PensionTicket[] }
 
 export interface LotteryStore {
   version: 1
