@@ -24,6 +24,26 @@ export interface PensionTicket {
   number: string
 }
 
+export interface PensionFilters {
+  sumMin: number
+  sumMax: number
+  oddCount: number | null
+  maxRepeat: number
+  minRanges: number
+}
+
+export interface PensionOptions {
+  group?: number | null
+  fixedDigits?: (number | null)[]
+  excludedDigits?: number[]
+  filters?: PensionFilters
+  digitWeights?: number[][]
+  groupWeights?: number[]
+  rangeCounts?: number[]
+  uniqueCount?: number
+  fibonacciCount?: number
+}
+
 export interface PensionSet {
   number: string
   tickets: PensionTicket[]
