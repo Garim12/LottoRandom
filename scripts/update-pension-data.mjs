@@ -20,12 +20,17 @@ const draws = body.data.result.map((row) => {
 }).sort((a, b) => a.round - b.round)
 const history = validatePensionHistory({ source, retrievedAt: new Date().toISOString(), draws })
 if (draws[0].round !== 1 || draws.at(-1).round !== latest) throw new Error('연금복권 전체 회차가 수집되지 않았습니다.')
+let previous
 try {
-  const previous = validatePensionHistory(JSON.parse(await readFile(target, 'utf8')))
+  previous = validatePensionHistory(JSON.parse(await readFile(target, 'utf8')))
   if (previous.draws.at(-1).round > latest) throw new Error('원본 이력이 저장된 데이터보다 오래되었습니다.')
 } catch (error) { if (error.code !== 'ENOENT') throw error }
-await mkdir(new URL('../src/data/', import.meta.url), { recursive: true })
-const metadata = JSON.stringify({ source, retrievedAt: history.retrievedAt }).slice(0, -1)
-await writeFile(new URL(`${target.href}.tmp`), `${metadata},\n"draws":[\n${draws.map((draw) => JSON.stringify(draw)).join(',\n')}\n]}\n`)
-await rename(new URL(`${target.href}.tmp`), target)
-console.log(`연금복권 1~${latest}회 (${draws.at(-1).date}) 저장`)
+if (JSON.stringify(previous?.draws) === JSON.stringify(draws)) {
+  console.log(`연금복권 ${latest}회 (${draws.at(-1).date})까지 최신 상태, 변경 없음`)
+} else {
+  await mkdir(new URL('../src/data/', import.meta.url), { recursive: true })
+  const metadata = JSON.stringify({ source, retrievedAt: history.retrievedAt }).slice(0, -1)
+  await writeFile(new URL(`${target.href}.tmp`), `${metadata},\n"draws":[\n${draws.map((draw) => JSON.stringify(draw)).join(',\n')}\n]}\n`)
+  await rename(new URL(`${target.href}.tmp`), target)
+  console.log(`연금복권 1~${latest}회 (${draws.at(-1).date}) 저장`)
+}

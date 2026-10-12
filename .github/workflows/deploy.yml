@@ -1,9 +1,11 @@
-name: Deploy GitHub Pages
+name: Update history and deploy GitHub Pages
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '17 13 * * *' # 매일 22:17 KST
 
 permissions:
   contents: read
@@ -12,26 +14,54 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pages: write
+    outputs:
+      changed: ${{ steps.history.outputs.changed }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
           cache: npm
       - run: npm ci
+      - name: Fetch and validate official draw histories
+        run: |
+          npm run data:update
+          npm run data:update:pension
       - run: npm run test
       - run: npm run build
+      - name: Commit validated history changes
+        id: history
+        run: |
+          git add src/data/lotto-history.json src/data/pension-history.json
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m "chore: update lottery draw histories"
+            git push origin HEAD:main
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
           path: dist
 
   deploy:
+    # GITHUB_TOKEN의 커밋은 push 워크플로를 재실행하지 않으므로 같은 실행에서 배포합니다.
+    if: github.event_name != 'schedule' || needs.build.outputs.changed == 'true'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
