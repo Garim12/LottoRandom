@@ -6,7 +6,7 @@ import LottoNumberSelector from './LottoNumberSelector.vue'
 import LottoStrategies from './LottoStrategies.vue'
 import historyData from '../../data/lotto-history.json'
 import { validateHistory } from '../../utils/lottoHistory'
-import { strategyPlan, summarizeHistory, trainLottoModel, type StrategyId, type StrategyWeights } from '../../utils/lottoStrategies'
+import { DEFAULT_STRATEGY_WEIGHTS, strategyPlan, summarizeHistory, trainLottoModel, type StrategyId, type StrategyWeights } from '../../utils/lottoStrategies'
 import { defaultLottoFilters, formatLotto, generateLottoGames, regenerateLottoGame } from '../../utils/lotto'
 import type { GameCount, LottoSelection } from '../../types/lottery'
 
@@ -22,7 +22,7 @@ const mode = ref<'random' | 'spread' | 'filtered' | 'strategies'>('random')
 const history = validateHistory(historyData)
 const strategy = ref<StrategyId>('random')
 const historyWindow = ref(100)
-const customWeights = ref<StrategyWeights>({ ml: 4, frequency: 2, gap: 2, fibonacci: 0 })
+const customWeights = ref<StrategyWeights>({ ...DEFAULT_STRATEGY_WEIGHTS })
 const draws = computed(() => historyWindow.value ? history.draws.slice(-historyWindow.value) : history.draws)
 const historyStats = computed(() => summarizeHistory(draws.value))
 const model = computed(() => mode.value === 'strategies' && (strategy.value === 'ml' || strategy.value === 'custom') ? trainLottoModel(draws.value) : null)

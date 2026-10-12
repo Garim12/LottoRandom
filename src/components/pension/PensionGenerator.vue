@@ -7,7 +7,7 @@ import PensionStrategies from './PensionStrategies.vue'
 import { defaultPensionFilters, PENSION_POSITIONS, formatPension, generatePensionDigits, generatePensionNumber, generatePensionSet, generatePensionSpread, regenerateGroup } from '../../utils/pension'
 import { pensionStrategyPlan, summarizePensionHistory, trainPensionModel } from '../../utils/pensionStrategies'
 import { validatePensionHistory } from '../../utils/pensionHistory'
-import type { StrategyId, StrategyWeights } from '../../utils/lottoStrategies'
+import { DEFAULT_STRATEGY_WEIGHTS, type StrategyId, type StrategyWeights } from '../../utils/lottoStrategies'
 import historyData from '../../data/pension-history.json'
 import type { PensionOptions, PensionSet as PensionSetType, PensionTicket as PensionTicketType, StoredLottery } from '../../types/lottery'
 
@@ -27,7 +27,7 @@ const method = ref<'random' | 'filtered' | 'strategies'>('random')
 const filters = ref(defaultPensionFilters())
 const strategy = ref<StrategyId>('random')
 const historyWindow = ref(100)
-const customWeights = ref<StrategyWeights>({ ml: 4, frequency: 2, gap: 2, fibonacci: 0 })
+const customWeights = ref<StrategyWeights>({ ...DEFAULT_STRATEGY_WEIGHTS })
 const history = validatePensionHistory(historyData)
 const draws = computed(() => historyWindow.value ? history.draws.slice(-historyWindow.value) : history.draws)
 const stats = computed(() => summarizePensionHistory(draws.value))

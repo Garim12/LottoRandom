@@ -12,10 +12,11 @@ export const STRATEGIES = [
   { id: 'pattern', name: '7. 당첨 패턴', description: '과거에 가장 흔했던 홀수 개수·저번호(1–22) 개수·최장 연속 길이 묶음을 적용합니다. 연속 길이는 상한으로 사용합니다.' },
   { id: 'fibonacci', name: '8. 황금비율 (피보나치)', description: '1·2·3·5·8·13·21·34 중 2개, 나머지에서 4개를 고르는 수열 테마입니다. 황금비에 의한 예측 근거는 없습니다.' },
   { id: 'sum', name: '9. 합계 범위', description: '분석 기간의 당첨번호 합계에서 20~80백분위 범위를 적용합니다.' },
-  { id: 'custom', name: '10. AI 커스텀 (로컬)', description: '로컬 학습 모델·출현 빈도·미출현·피보나치 선호도를 설정한 비중으로 혼합합니다. 외부 생성형 AI를 호출하지 않습니다.' },
+  { id: 'custom', name: '10. AI 커스텀 (로컬)', description: '네 가지 기준을 원하는 비율로 섞어 번호를 골라요. 아래 슬라이더로 나만의 선택 방식을 만들어 보세요.' },
 ] as const
 export type StrategyId = typeof STRATEGIES[number]['id']
 export interface StrategyWeights { ml: number; frequency: number; gap: number; fibonacci: number }
+export const DEFAULT_STRATEGY_WEIGHTS: Readonly<StrategyWeights> = { ml: 4, frequency: 2, gap: 2, fibonacci: 0 }
 export const FIBONACCI = [1, 2, 3, 5, 8, 13, 21, 34]
 const NUMBERS = Array.from({ length: 45 }, (_, i) => i + 1)
 

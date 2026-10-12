@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import StrategyWeightsEditor from '../common/StrategyWeights.vue'
 import type { StrategyId, StrategyWeights } from '../../utils/lottoStrategies'
 import { PENSION_STRATEGIES, type summarizePensionHistory, type trainPensionModel } from '../../utils/pensionStrategies'
 import { PENSION_POSITIONS } from '../../utils/pension'
@@ -10,7 +11,6 @@ const weights = defineModel<StrategyWeights>('weights', { required: true })
 defineProps<{ draws: readonly PensionDraw[]; stats: ReturnType<typeof summarizePensionHistory>; model: ReturnType<typeof trainPensionModel> | null }>()
 const selected = computed(() => PENSION_STRATEGIES.find((item) => item.id === strategy.value)!)
 const position = ref(1)
-const weightLabels = { ml: '학습 모델', frequency: '출현 빈도', gap: '미출현 길이', fibonacci: '피보나치 선호' } as const
 </script>
 
 <template>
@@ -23,10 +23,7 @@ const weightLabels = { ml: '학습 모델', frequency: '출현 빈도', gap: '�
     <p id="pension-strategy-help" class="mt-3 text-sm leading-6">{{ selected.description }}</p>
     <p class="mt-2 text-xs leading-5 text-violet-100">데이터 기준: {{ draws[0]!.round }}~{{ draws[draws.length - 1]!.round }}회 · {{ draws.length }}회 · 마지막 추첨 {{ draws[draws.length - 1]!.date }}.
       <a href="https://www.dhlottery.co.kr/pt720/result" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2">동행복권 원본</a>의 1등 조·번호만 분석하며 보너스 번호는 제외합니다. 매일 22:17(한국 시간) 이후 새 회차를 확인해 자동 반영합니다. 갱신 후 페이지를 새로고침해 주세요.</p>
-    <div v-if="strategy === 'custom'" class="mt-4 grid grid-cols-2 gap-3">
-      <label v-for="(label, key) in weightLabels" :key="key" class="text-xs font-semibold">{{ label }} 가중치<input v-model.number="weights[key]" type="number" min="0" max="10" step="0.5" required class="condition-input bg-violet-950" /></label>
-      <p class="col-span-2 text-xs leading-5 text-violet-100">0은 해당 항목을 끕니다. 하나 이상을 양수로 설정하세요. 추출 선호도이며 당첨 확률이 아닙니다.</p>
-    </div>
+    <StrategyWeightsEditor v-if="strategy === 'custom'" v-model="weights" pension />
     <div v-if="model" class="mt-4 rounded-xl bg-black/15 p-3 text-xs leading-5" aria-label="연금복권 로컬 모델 검증">
       <p class="font-bold">시간 순서 검증 · 자리별 최상위 숫자 기준</p>
       <p>{{ model.validation.trainingEnd }}회까지 학습 후 {{ model.validation.firstRound }}~{{ model.validation.lastRound }}회({{ model.validation.count }}회)를 검증했습니다.</p>

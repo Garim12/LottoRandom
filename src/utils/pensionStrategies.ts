@@ -13,7 +13,7 @@ const descriptions: Record<StrategyId, string> = {
   pattern: '선택 기간의 최빈 홀수 개수·서로 다른 숫자 개수 묶음을 맞춥니다. 자리 순서와 숫자 반복을 허용합니다.',
   fibonacci: '피보나치 숫자 1·2·3·5·8을 정확히 3자리에 배치하는 수열 테마입니다. 숫자 반복을 허용하며 예측 근거는 없습니다.',
   sum: '선택 기간의 1등 번호에서 6자리 숫자 합계의 20~80백분위 범위를 적용합니다. 조는 합계에 넣지 않습니다.',
-  custom: '로컬 전이 모델·자리별 빈도·미출현·피보나치 선호를 설정 비중으로 혼합합니다. 조에는 앞의 세 항목만 적용하며 외부 AI를 호출하지 않습니다.',
+  custom: '네 가지 기준을 원하는 비율로 섞어 각 자리의 숫자를 골라요. 아래 슬라이더로 나만의 선택 방식을 만들어 보세요.',
 }
 export const PENSION_STRATEGIES = STRATEGIES.map(({ id, name }) => ({ id, name, description: descriptions[id] }))
 const categories = (draw: PensionDraw) => [draw.group - 1, ...[...draw.number].map(Number)]
