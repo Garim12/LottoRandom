@@ -63,6 +63,6 @@ const weightLabels = { ml: '학습 모델', frequency: '출현 빈도', gap: '�
         </div>
       </div>
     </details>
-    <p class="mt-3 text-xs leading-5 text-emerald-100">고정·제외 번호에도 선택한 전략이 적용됩니다. 조건이 충돌하면 안내하며, 전략 변경은 다음 생성부터 적용됩니다. 이력은 배포 시 포함된 데이터입니다.</p>
+    <p class="mt-3 text-xs leading-5 text-emerald-100">고정·제외 번호에도 선택한 전략이 적용됩니다. 조건이 충돌하면 안내하며, 전략 변경은 다음 생성부터 적용됩니다. 매일 22:17(한국 시간) 이후 새 회차를 확인해 자동 반영합니다. 갱신 후 페이지를 새로고침해 주세요.</p>
   </fieldset>
 </template>

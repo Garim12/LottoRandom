@@ -40,8 +40,12 @@ while (cursor > previous + 1) {
 draws = [...draws, ...added.values()].sort((a, b) => a.round - b.round)
 const history = validateHistory({ source, retrievedAt: new Date().toISOString(), draws })
 if (draws[0].round !== 1 || draws.at(-1).round !== latest) throw new Error('전체 회차가 수집되지 않았습니다.')
-await mkdir(new URL('../src/data/', import.meta.url), { recursive: true })
-const metadata = JSON.stringify({ source: history.source, retrievedAt: history.retrievedAt }).slice(0, -1)
-await writeFile(new URL(`${target.href}.tmp`), `${metadata},\n"draws":[\n${draws.map((draw) => JSON.stringify(draw)).join(',\n')}\n]}\n`)
-await rename(new URL(`${target.href}.tmp`), target)
-console.log(`동행복권 1~${latest}회 (${draws.at(-1).date}), 새 회차 ${added.size}개 저장`)
+if (added.size === 0) {
+  console.log(`로또 ${latest}회 (${draws.at(-1).date})까지 최신 상태, 변경 없음`)
+} else {
+  await mkdir(new URL('../src/data/', import.meta.url), { recursive: true })
+  const metadata = JSON.stringify({ source: history.source, retrievedAt: history.retrievedAt }).slice(0, -1)
+  await writeFile(new URL(`${target.href}.tmp`), `${metadata},\n"draws":[\n${draws.map((draw) => JSON.stringify(draw)).join(',\n')}\n]}\n`)
+  await rename(new URL(`${target.href}.tmp`), target)
+  console.log(`동행복권 1~${latest}회 (${draws.at(-1).date}), 새 회차 ${added.size}개 저장`)
+}

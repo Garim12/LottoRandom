@@ -22,7 +22,7 @@ const weightLabels = { ml: '학습 모델', frequency: '출현 빈도', gap: '�
     </div>
     <p id="pension-strategy-help" class="mt-3 text-sm leading-6">{{ selected.description }}</p>
     <p class="mt-2 text-xs leading-5 text-violet-100">데이터 기준: {{ draws[0]!.round }}~{{ draws[draws.length - 1]!.round }}회 · {{ draws.length }}회 · 마지막 추첨 {{ draws[draws.length - 1]!.date }}.
-      <a href="https://www.dhlottery.co.kr/pt720/result" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2">동행복권 원본</a>의 1등 조·번호만 분석하며 보너스 번호는 제외합니다. 배포에 포함된 이력입니다.</p>
+      <a href="https://www.dhlottery.co.kr/pt720/result" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2">동행복권 원본</a>의 1등 조·번호만 분석하며 보너스 번호는 제외합니다. 매일 22:17(한국 시간) 이후 새 회차를 확인해 자동 반영합니다. 갱신 후 페이지를 새로고침해 주세요.</p>
     <div v-if="strategy === 'custom'" class="mt-4 grid grid-cols-2 gap-3">
       <label v-for="(label, key) in weightLabels" :key="key" class="text-xs font-semibold">{{ label }} 가중치<input v-model.number="weights[key]" type="number" min="0" max="10" step="0.5" required class="condition-input bg-violet-950" /></label>
       <p class="col-span-2 text-xs leading-5 text-violet-100">0은 해당 항목을 끕니다. 하나 이상을 양수로 설정하세요. 추출 선호도이며 당첨 확률이 아닙니다.</p>
