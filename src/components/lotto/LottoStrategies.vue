@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import StrategyWeightsEditor from '../common/StrategyWeights.vue'
 import { STRATEGIES, type StrategyId, type StrategyWeights, type summarizeHistory, type trainLottoModel } from '../../utils/lottoStrategies'
 import type { LottoDraw } from '../../utils/lottoHistory'
 
@@ -8,7 +9,6 @@ const window = defineModel<number>('window', { required: true })
 const weights = defineModel<StrategyWeights>('weights', { required: true })
 defineProps<{ draws: readonly LottoDraw[]; stats: ReturnType<typeof summarizeHistory>; model: ReturnType<typeof trainLottoModel> | null }>()
 const selected = computed(() => STRATEGIES.find((item) => item.id === strategy.value)!)
-const weightLabels = { ml: '학습 모델', frequency: '출현 빈도', gap: '미출현 길이', fibonacci: '피보나치 선호' } as const
 </script>
 
 <template>
@@ -32,12 +32,7 @@ const weightLabels = { ml: '학습 모델', frequency: '출현 빈도', gap: '�
       <a href="https://www.dhlottery.co.kr/lt645/result" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2">동행복권 원본</a>
       보너스 번호는 분석에서 제외합니다.
     </p>
-    <div v-if="strategy === 'custom'" class="mt-4 grid grid-cols-2 gap-3">
-      <label v-for="(label, key) in weightLabels" :key="key" class="text-xs font-semibold">{{ label }} 가중치
-        <input v-model.number="weights[key]" type="number" min="0" max="10" step="0.5" required class="condition-input" />
-      </label>
-      <p class="col-span-2 text-xs leading-5 text-emerald-100">0은 해당 항목을 끕니다. 0~10 중 하나 이상을 양수로 설정하세요. 선택 비중이며 당첨 확률이 아닙니다.</p>
-    </div>
+    <StrategyWeightsEditor v-if="strategy === 'custom'" v-model="weights" />
     <div v-if="model" class="mt-4 rounded-xl bg-black/15 p-3 text-xs leading-5" aria-label="로컬 모델 검증">
       <p class="font-bold">시간 순서 검증 · 모델 상위 6번호 기준</p>
       <p>{{ model.validation.trainingEnd }}회까지 학습 후 {{ model.validation.firstRound }}~{{ model.validation.lastRound }}회({{ model.validation.count }}회)를 검증했습니다.</p>
