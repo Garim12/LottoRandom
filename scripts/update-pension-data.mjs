@@ -1,17 +1,11 @@
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import { validatePensionHistory } from '../src/utils/pensionHistory.ts'
+import { readLatestRound, readLotteryResponse } from './lottery-request.mjs'
 
 const source = 'https://www.dhlottery.co.kr/pt720/result'
 const target = new URL('../src/data/pension-history.json', import.meta.url)
-const get = async (url) => {
-  const response = await fetch(url, { signal: AbortSignal.timeout(20_000), headers: { AJAX: 'true', requestMenuUri: '/pt720/result' } })
-  if (!response.ok) throw new Error(`동행복권 응답 오류: ${response.status}`)
-  return response
-}
-const page = await (await get(source)).text()
-const latest = Number(page.match(/id="opt_val"\s+value="(\d+)"/)?.[1])
-if (!Number.isInteger(latest) || latest < 60) throw new Error('연금복권 최신 회차를 찾지 못했습니다.')
-const body = await (await get(new URL('/pt720/selectPstPt720WnList.do', source))).json()
+const latest = await readLatestRound(source)
+const body = await readLotteryResponse(new URL('/pt720/selectPstPt720WnList.do', source), source, (response) => response.json())
 if (body.resultCode || !Array.isArray(body.data?.result)) throw new Error('연금복권 당첨 이력을 읽지 못했습니다.')
 const draws = body.data.result.map((row) => {
   const date = String(row.psltRflYmd)

@@ -1,16 +1,11 @@
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import { validateHistory } from '../src/utils/lottoHistory.ts'
+import { readLatestRound, readLotteryResponse } from './lottery-request.mjs'
 
 const source = 'https://www.dhlottery.co.kr/lt645/result'
 const target = new URL('../src/data/lotto-history.json', import.meta.url)
-const get = async (url) => {
-  const response = await fetch(url, { signal: AbortSignal.timeout(20_000), headers: { AJAX: 'true', requestMenuUri: '/lt645/result' } })
-  if (!response.ok) throw new Error(`동행복권 응답 오류: ${response.status}`)
-  return response
-}
-const page = await (await get(source)).text()
-const latest = Number(page.match(/id="opt_val"\s+value="(\d+)"/)?.[1])
-if (!Number.isInteger(latest) || latest < 60) throw new Error('최신 회차를 찾지 못했습니다.')
+const get = (url) => readLotteryResponse(url, source, (response) => response.json())
+const latest = await readLatestRound(source)
 let draws = []
 try { draws = validateHistory(JSON.parse(await readFile(target, 'utf8'))).draws } catch (error) {
   if (error.code !== 'ENOENT') throw error
@@ -24,7 +19,7 @@ while (cursor > previous + 1) {
   url.search = new URLSearchParams(cursor === latest + 1
     ? { srchDir: 'center', srchLtEpsd: String(latest) }
     : { srchDir: 'older', srchCursorLtEpsd: String(cursor) })
-  const body = await (await get(url)).json()
+  const body = await get(url)
   const list = body.data?.list
   if (body.resultCode || !Array.isArray(list) || !list.length) throw new Error(`회차 ${cursor} 이전 데이터를 읽지 못했습니다.`)
   const next = Math.min(...list.map((row) => row.ltEpsd))
