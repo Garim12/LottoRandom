@@ -1,9 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { readFile, rename, writeFile } from 'node:fs/promises'
+import { setTimeout as wait } from 'node:timers/promises'
 
 vi.mock('node:fs/promises', () => ({
   mkdir: vi.fn(), readFile: vi.fn(), rename: vi.fn(), writeFile: vi.fn(),
 }))
+vi.mock('node:timers/promises', () => ({ setTimeout: vi.fn() }))
 
 const games = [
   { name: 'lotto', source: 'lt645', run: () => import('./update-lotto-data.mjs') },
@@ -40,6 +42,7 @@ describe.each(games)('$name history updater', ({ name, source, run }) => {
     request = vi.fn()
     vi.stubGlobal('fetch', request)
     vi.spyOn(console, 'log').mockImplementation(() => {})
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
   })
 
   afterEach(() => {
@@ -50,6 +53,15 @@ describe.each(games)('$name history updater', ({ name, source, run }) => {
   it('does not rewrite data or the collection timestamp when unchanged', async () => {
     respond(60, previous.draws)
     await run()
+    expect(writeFile).not.toHaveBeenCalled()
+    expect(rename).not.toHaveBeenCalled()
+  })
+
+  it('recovers from a temporary page without a latest round', async () => {
+    request.mockResolvedValueOnce(new Response('<html>Temporarily unavailable</html>'))
+    respond(60, previous.draws)
+    await run()
+    expect(wait).toHaveBeenCalledExactlyOnceWith(5_000)
     expect(writeFile).not.toHaveBeenCalled()
     expect(rename).not.toHaveBeenCalled()
   })
@@ -93,9 +105,11 @@ describe.each(games)('$name history updater', ({ name, source, run }) => {
   })
 
   it.each(['http', 'network', 'page'])('preserves the file on a %s failure', async (failure) => {
-    if (failure === 'network') request.mockRejectedValueOnce(new Error('network unavailable'))
-    else request.mockResolvedValueOnce(new Response('unavailable', { status: failure === 'http' ? 503 : 200 }))
+    if (failure === 'network') request.mockRejectedValue(new Error('network unavailable'))
+    else request.mockImplementation(async () => new Response('unavailable', { status: failure === 'http' ? 503 : 200 }))
     await expect(run()).rejects.toThrow()
+    expect(request).toHaveBeenCalledTimes(3)
+    expect(wait.mock.calls).toEqual([[5_000], [10_000]])
     expect(writeFile).not.toHaveBeenCalled()
     expect(rename).not.toHaveBeenCalled()
   })

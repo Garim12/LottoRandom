@@ -63,7 +63,7 @@ Vue 3 Composition API, TypeScript, Vite, Tailwind CSS, Lucide Vue Next, Vitest, 
 
 GitHub Actions의 [Update history and deploy GitHub Pages](https://github.com/Garim12/LottoRandom/actions/workflows/deploy.yml)가 **매일 22:17(한국 시간, UTC 13:17)** 로또와 연금복권의 공식 이력을 조회합니다. 새 데이터가 있으면 테스트·빌드를 통과한 JSON만 `main`에 자동 커밋하고 같은 실행에서 GitHub Pages에 배포합니다. 이력이 같으면 수집 시각과 파일을 변경하지 않고, 정기 실행의 재배포도 생략합니다. `main` 코드 변경과 Actions의 **Run workflow → main** 수동 실행도 이력 확인 후 배포합니다.
 
-브라우저는 배포된 이력을 사용하므로 갱신 후 페이지를 새로고침하면 분석·학습에 새 회차가 반영됩니다. 공식 사이트 장애·형식 변경·회차 누락 시 자동 저장과 배포를 중단하고 기존 사이트를 유지합니다. 실패 원인은 Actions 로그에서 확인하고 **Re-run failed jobs**로 재시도할 수 있습니다. [GitHub 예약 실행](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)은 부하에 따라 지연될 수 있으며, 저장소 활동이 60일간 없으면 비활성화될 수 있습니다.
+브라우저는 배포된 이력을 사용하므로 갱신 후 페이지를 새로고침하면 분석·학습에 새 회차가 반영됩니다. 조회별 20초 제한을 두고, 네트워크·서버 오류나 최신 회차가 없는 페이지·JSON 파싱 실패는 5초·10초 간격으로 최대 3회 시도합니다. 접근 거부·요청 제한 등 408을 제외한 HTTP 4xx는 재시도하지 않습니다. 끝내 실패하거나 회차·번호 검증에 실패하면 자동 저장과 배포를 중단하고 기존 사이트를 유지합니다. Actions 로그에는 조회 경로·HTTP 상태·시도 횟수가 남으며 **Re-run failed jobs**로 재시도할 수 있습니다. [GitHub 예약 실행](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)은 부하에 따라 지연될 수 있으며, 저장소 활동이 60일간 없으면 비활성화될 수 있습니다.
 
 로컬에서 직접 갱신하려면:
 
