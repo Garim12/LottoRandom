@@ -1,4 +1,4 @@
-{"source":"https://www.dhlottery.co.kr/pt720/result","retrievedAt":"2026-10-12T02:13:56.123Z",
+{"source":"https://www.dhlottery.co.kr/pt720/result","retrievedAt":"2026-10-15T17:46:52.421Z",
 "draws":[
 {"round":1,"date":"2020-05-07","group":4,"number":"162132"},
 {"round":2,"date":"2020-05-14","group":2,"number":"450558"},
@@ -335,5 +335,6 @@
 {"round":333,"date":"2026-09-17","group":4,"number":"008973"},
 {"round":334,"date":"2026-09-24","group":2,"number":"956029"},
 {"round":335,"date":"2026-10-01","group":4,"number":"259311"},
-{"round":336,"date":"2026-10-08","group":5,"number":"791034"}
+{"round":336,"date":"2026-10-08","group":5,"number":"791034"},
+{"round":337,"date":"2026-10-15","group":3,"number":"668912"}
 ]}
