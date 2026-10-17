@@ -11,6 +11,7 @@
     "test:watch": "vitest",
     "data:update": "node scripts/update-lotto-data.mjs",
     "data:update:pension": "node scripts/update-pension-data.mjs",
+    "data:update:all": "node scripts/update-histories.mjs",
     "typecheck": "vue-tsc -b"
   },
   "dependencies": {

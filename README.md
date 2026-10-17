@@ -61,15 +61,16 @@ Vue 3 Composition API, TypeScript, Vite, Tailwind CSS, Lucide Vue Next, Vitest, 
 
 `src/data/lotto-history.json`에는 [동행복권 당첨 결과](https://www.dhlottery.co.kr/lt645/result)에서 수집한 1회부터의 이력이 포함되어 있습니다. 출처·수집 시각·회차·추첨일을 함께 기록하고 연속 회차, 실제 날짜, 1~45 번호 6개와 중복 여부를 검증합니다. 현재 반영된 최신 회차와 추첨일은 각 복권의 전략 화면에서 확인할 수 있습니다.
 
-GitHub Actions의 [Update history and deploy GitHub Pages](https://github.com/Garim12/LottoRandom/actions/workflows/deploy.yml)가 **매일 22:17(한국 시간, UTC 13:17)** 로또와 연금복권의 공식 이력을 조회합니다. 새 데이터가 있으면 테스트·빌드를 통과한 JSON만 `main`에 자동 커밋하고 같은 실행에서 GitHub Pages에 배포합니다. 이력이 같으면 수집 시각과 파일을 변경하지 않고, 정기 실행의 재배포도 생략합니다. `main` 코드 변경과 Actions의 **Run workflow → main** 수동 실행도 이력 확인 후 배포합니다.
+GitHub Actions의 [Update history and deploy GitHub Pages](https://github.com/Garim12/LottoRandom/actions/workflows/deploy.yml)가 **매일 08:17·22:17(한국 시간, UTC 23:17·13:17)** 로또와 연금복권의 공식 이력을 조회합니다. 새 데이터가 있으면 테스트·빌드를 통과한 JSON만 `main`에 자동 커밋하고 같은 실행에서 GitHub Pages에 배포합니다. 이력이 같으면 수집 시각과 파일을 변경하지 않습니다. 정상 예약 실행은 변경 유무와 관계없이 배포해 이전 배포 실패도 복구합니다. `main` 코드 변경과 Actions의 **Run workflow → main** 수동 실행도 같은 과정을 거칩니다.
 
-브라우저는 배포된 이력을 사용하므로 갱신 후 페이지를 새로고침하면 분석·학습에 새 회차가 반영됩니다. 조회별 20초 제한을 두고, 네트워크·서버 오류나 최신 회차가 없는 페이지·JSON 파싱 실패는 5초·10초 간격으로 최대 3회 시도합니다. 접근 거부·요청 제한 등 408을 제외한 HTTP 4xx는 재시도하지 않습니다. 끝내 실패하거나 회차·번호 검증에 실패하면 자동 저장과 배포를 중단하고 기존 사이트를 유지합니다. Actions 로그에는 조회 경로·HTTP 상태·시도 횟수가 남으며 **Re-run failed jobs**로 재시도할 수 있습니다. [GitHub 예약 실행](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)은 부하에 따라 지연될 수 있으며, 저장소 활동이 60일간 없으면 비활성화될 수 있습니다.
+브라우저는 배포된 이력을 사용하므로 갱신 후 페이지를 새로고침하면 분석·학습에 새 회차가 반영됩니다. 공식 응답의 제목이 ‘시스템 점검 페이지’일 때만 갱신을 보류합니다. 배치 시작 전 보관한 두 JSON을 원래 바이트로 복원하고, Actions 실행 요약에 보류 사유를 남기며 다음 예약 실행에서 다시 조회합니다. 점검 중인 예약 실행은 데이터 커밋·사이트 배포를 생략하고, 코드 push·수동 실행은 기존 검증 데이터로 테스트·빌드·배포합니다.
+
+조회별 20초 제한을 두고, 네트워크·서버 오류나 최신 회차가 없는 일반 페이지·JSON 파싱 실패는 5초·10초 간격으로 최대 3회 시도합니다. 접근 거부·요청 제한 등 408을 제외한 HTTP 4xx는 재시도하지 않습니다. 점검 안내가 아닌 오류가 계속되거나 회차·번호 검증 또는 원본 복원에 실패하면 작업을 실패 처리해 커밋·배포를 중단합니다. Actions 로그에는 조회 경로·HTTP 상태·시도 횟수가 남으며 **Re-run failed jobs**로 재시도할 수 있습니다. [GitHub 예약 실행](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)은 부하에 따라 지연될 수 있으며, 저장소 활동이 60일간 없으면 비활성화될 수 있습니다.
 
 로컬에서 직접 갱신하려면:
 
 ```sh
-npm run data:update
-npm run data:update:pension
+npm run data:update:all
 npm test
 npm run build
 ```
