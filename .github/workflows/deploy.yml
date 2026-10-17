@@ -5,7 +5,7 @@ on:
     branches: [main]
   workflow_dispatch:
   schedule:
-    - cron: '17 13 * * *' # 매일 22:17 KST
+    - cron: '17 13,23 * * *' # 매일 08:17 · 22:17 KST
 
 permissions:
   contents: read
@@ -26,6 +26,7 @@ jobs:
       pages: write
     outputs:
       changed: ${{ steps.history.outputs.changed }}
+      deferred: ${{ steps.update.outputs.deferred }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -36,13 +37,13 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Fetch and validate official draw histories
-        run: |
-          npm run data:update
-          npm run data:update:pension
+        id: update
+        run: npm run data:update:all
       - run: npm run test
       - run: npm run build
       - name: Commit validated history changes
         id: history
+        if: steps.update.outputs.deferred != 'true'
         run: |
           git add src/data/lotto-history.json src/data/pension-history.json
           if git diff --cached --quiet; then
@@ -61,7 +62,7 @@ jobs:
 
   deploy:
     # GITHUB_TOKEN의 커밋은 push 워크플로를 재실행하지 않으므로 같은 실행에서 배포합니다.
-    if: github.event_name != 'schedule' || needs.build.outputs.changed == 'true'
+    if: github.event_name != 'schedule' || needs.build.outputs.deferred != 'true'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

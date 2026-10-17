@@ -17,6 +17,13 @@ beforeEach(() => {
 afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks() })
 
 describe('official lottery requests', () => {
+  it('identifies an official maintenance page before parsing it as JSON', async () => {
+    request.mockImplementation(async () => new Response('<!DOCTYPE html><html><head><title>시스템 점검 페이지</title></head><body>시스템 정기 점검</body></html>',
+      { headers: { 'content-type': 'text/html; charset=UTF-8' } }))
+    await expect(readLotteryResponse(url, source, parse)).rejects.toMatchObject({ code: 'LOTTERY_MAINTENANCE' })
+    expect(wait).not.toHaveBeenCalled()
+  })
+
   it('recovers from network and server failures with bounded delays', async () => {
     request.mockRejectedValueOnce(new TypeError('fetch failed'))
       .mockResolvedValueOnce(new Response('unavailable', { status: 503 }))
@@ -28,7 +35,7 @@ describe('official lottery requests', () => {
   })
 
   it('retries an HTTP 200 HTML page where JSON was expected', async () => {
-    request.mockResolvedValueOnce(new Response('<html>Temporary error</html>'))
+    request.mockResolvedValueOnce(new Response('<html><title>Temporary error</title></html>', { headers: { 'content-type': 'text/html' } }))
       .mockResolvedValueOnce(Response.json({ data: { list: [1] } }))
     await expect(readLotteryResponse(url, source, parse)).resolves.toEqual({ data: { list: [1] } })
     expect(wait).toHaveBeenCalledExactlyOnceWith(5_000)

@@ -22,7 +22,7 @@ const position = ref(1)
     </div>
     <p id="pension-strategy-help" class="mt-3 text-sm leading-6">{{ selected.description }}</p>
     <p class="mt-2 text-xs leading-5 text-violet-100">데이터 기준: {{ draws[0]!.round }}~{{ draws[draws.length - 1]!.round }}회 · {{ draws.length }}회 · 마지막 추첨 {{ draws[draws.length - 1]!.date }}.
-      <a href="https://www.dhlottery.co.kr/pt720/result" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2">동행복권 원본</a>의 1등 조·번호만 분석하며 보너스 번호는 제외합니다. 매일 22:17(한국 시간) 이후 새 회차를 확인해 자동 반영합니다. 갱신 후 페이지를 새로고침해 주세요.</p>
+      <a href="https://www.dhlottery.co.kr/pt720/result" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2">동행복권 원본</a>의 1등 조·번호만 분석하며 보너스 번호는 제외합니다. 매일 08:17·22:17(한국 시간) 이후 새 회차를 확인해 자동 반영합니다. 공식 사이트 점검 중에는 기존 이력을 유지합니다. 갱신 후 페이지를 새로고침해 주세요.</p>
     <StrategyWeightsEditor v-if="strategy === 'custom'" v-model="weights" pension />
     <div v-if="model" class="mt-4 rounded-xl bg-black/15 p-3 text-xs leading-5" aria-label="연금복권 로컬 모델 검증">
       <p class="font-bold">시간 순서 검증 · 자리별 최상위 숫자 기준</p>
